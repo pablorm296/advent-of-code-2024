@@ -11,7 +11,7 @@ lines <- read_lines("./day-02/input/1.txt")
 parsed_lines <- str_split(lines, "\\s+")
 
 #' Function to get the distance between the numbers of a vector
-#' 
+#'
 get_distances <- function(vector) {
     distances <- imap_dbl(
         vector,
@@ -24,7 +24,7 @@ get_distances <- function(vector) {
 }
 
 #' Function to check if a report is safe
-#' 
+#'
 check_report <- function(vector) {
     # Coerce to number
     vector <- as.numeric(vector)
@@ -49,8 +49,53 @@ check_report <- function(vector) {
     }
 
     return("safe")
-
 }
 
-map_chr(parsed_lines, check_report) |>
+check_results <- map_chr(parsed_lines, check_report)
+
+check_results |>
+    table()
+
+# Part 2 ======================================================================
+
+#' Function to get the differences between the numbers of a vector
+#'
+get_differences <- function(vector) {
+    distances <- imap_dbl(
+        vector,
+        function(x, idx) {
+            difference <- x - vector[idx + 1]
+            return(difference)
+        }
+    )
+    return(distances)
+}
+
+#' Function to check the report with damper
+#'
+#' Brute force :)
+check_report_with_damper <- function(vector, index = 0) {
+    result <- check_report(vector)
+
+    # If the check returns unsafe, then try after removing one element in the vector
+    if (result == "unsafe") {
+        alternatives <- map_chr(
+            1:length(vector),
+            function(x) {
+                new_vector <- vector[-x]
+                new_result <- check_report(new_vector)
+                return(new_result)
+            }
+        )
+        if (all(alternatives == "unsafe")) {
+            return("unsafe")
+        } else {
+            return("safe")
+        }
+    }
+
+    return(result)
+}
+
+map_chr(parsed_lines, check_report_with_damper) |>
     table()

@@ -25,3 +25,22 @@ eval_mul_instruction <- function(string) {
 mul_results <- map_int(mul_instructions, eval_mul_instruction)
 
 sum(mul_results)
+
+# Part 2 ======================================================================
+
+# Get the location of the keywords
+valid_blocks <- str_extract_all(
+    corrupted_memory,
+    "^(.*?(?=don't\\(\\)))|(do\\(\\).*?(?=don't\\(\\)|$))",
+    simplify = TRUE
+) |>
+    as.character() |>
+    str_c(collapse = "")
+
+mul_instructions <- str_extract_all(valid_blocks, "mul\\(\\d{1,3},\\d{1,3}\\)", simplify = TRUE) |>
+    as.character()
+
+mul_results <- map_int(mul_instructions, eval_mul_instruction)
+
+sum(mul_results)
+

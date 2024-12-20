@@ -123,3 +123,50 @@ for (i in 1:nrow(letters_grid)) {
 }
 
 # Part 2 ======================================================================
+
+is_mas <- function(vector) {
+    string <- str_c(vector, collapse = "")
+    return(string == "MAS" || string == "SAM")
+}
+
+find_x_mas <- function(row, col, matrix) {
+    # If current position is not an m, just skip
+    if (!(matrix[row, col] %in% c("M", "S"))) {
+        return(FALSE)
+    }
+
+    can_go_right <- (col + 2) <= ncol(matrix)
+    can_go_down <- (row + 2) <= nrow(matrix)
+
+    if (!can_go_down || !can_go_right) {
+        return(FALSE)
+    }
+
+    # From the current position, get a 3*3 matrix
+    new_matrix <- matrix[row:(row + 2), col:(col + 2)]
+
+    # Get main diagonal
+    main_diag <- diag(new_matrix)
+
+    # Get the other diagonal. For this, we need to flip the matrix
+    flipped_matrix <- new_matrix[,ncol(new_matrix):1]
+    other_diag <- diag(flipped_matrix)
+
+    is_x_mas <- is_mas(main_diag) && is_mas(other_diag)
+
+    # Log hit
+    if (is_x_mas) {
+        log_hit(row, col, "down-right")
+    }
+
+    return(is_x_mas)
+
+}
+
+hits <- 0
+
+for (i in 1:nrow(letters_grid)) {
+    for (j in 1:ncol(letters_grid)) {
+        hits <- hits + find_x_mas(i, j, letters_grid)
+    }
+}
